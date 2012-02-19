@@ -77,7 +77,7 @@ void loop()
 	{
 		case READ:
 			Serial.println(">> ");
-			Serial.readBytesUntil('\n', buffer, BUFFER_SIZE);
+			Serial.readBytesUntil('\n', buffer, BUFFER_SIZE-1);
 			state = BEEP;
 			break;
 
