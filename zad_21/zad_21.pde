@@ -1,10 +1,9 @@
 // vim: noai:ts=4:sw=4
 
 /*
-FIXME copy GND to all exercises!
-- 5V idzie do -
-- GND idzie do +
-- GND do F21
+- 5V  <-> -
+- GND <-> +
+- GND <-> F21 (led)
 
 - 9  <-> F26 (led)
 - 11 <-> F23 (led)

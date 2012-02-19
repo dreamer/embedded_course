@@ -1,6 +1,9 @@
 // vim: noai:ts=4:sw=4
 
 /*
+- 5V  <-> -
+- GND <-> +
+
 - J41, J42  (speaker)
 - 8 <-> F39 (speaker)
 - 9 <-> A9  (led)
