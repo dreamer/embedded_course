@@ -1,58 +1,65 @@
-Zadanie 12
-- 5V idzie do -
-- GND idzie do +
-- A0 idzie do F4
-- 9 idzie do A9
-- 2 idzie do H13
+// vim: noai:ts=4:sw=4
 
-int lightPin = 0;  //define a pin for Photo resistor
-int ledPin=9;     //define a pin for LED
-int buttonPin = 2; 
+/*
+- 5V  <-> -
+- GND <-> +
+
+- A0 <-> F4  (photoresistor)
+- 9  <-> A9  (led)
+- 2  <-> H13 (button 1)
+- 4  <-> H31 (button 2)
+*/
+
+#define BUTTON_1_PIN (2)
+#define BUTTON_2_PIN (4)
+#define LED_PIN (9)
+#define LIGHT_PIN (0)
+
 int low = 750;
 int high = 980;
-int buttonState = 0;
-int prevState = 1;
-int buttonFlag = 0;
+int button_1_state = LOW;
+int button_2_state = LOW;
+int prev_button_1_state = LOW;
+int prev_button_2_state = LOW;
 
-int map(int x){
-   int ret;
-   if(x>high) ret = 255;
-   else if(x<low) ret = 0;
-   else {
-     float val = x - low;
-     float range = high-low;
-     ret = val/range*255.0;
-   }
-   //Serial.println(ret);
-   //Serial.println(x);
-   return ret;
+int map(int x) {
+   if (x < low)
+	   return 0;
+   if (x > high)
+	   return 255;
+
+	float val = x - low;
+	float range = high - low;
+	return val / range * 255.0;
 }
 
 void setup()
 {
-    Serial.begin(9600);
-    pinMode( ledPin, OUTPUT );
-    pinMode(buttonPin, INPUT);  
+	Serial.begin(9600);
+	pinMode(LED_PIN, OUTPUT );
+	pinMode(BUTTON_1_PIN, INPUT);  
+	pinMode(BUTTON_2_PIN, INPUT);  
 }
 
 void loop()
 {
-    buttonState = digitalRead(buttonPin);
-    if (prevState != buttonState)
-    {
-      prevState = buttonState;
-      if (buttonState == HIGH) {  
-          if(buttonFlag){
-            high = analogRead(lightPin);
-            Serial.println(high);
-          } else {
-            low = analogRead(lightPin);
-            Serial.println(low);
-          }
-          buttonFlag = ! buttonFlag;
-      }  
-    }
-    
-    analogWrite(ledPin, map(analogRead(lightPin)));
-    delay(30); 
+	button_1_state = digitalRead(BUTTON_1_PIN);
+	button_2_state = digitalRead(BUTTON_2_PIN);
+
+	if (prev_button_1_state != button_1_state) {
+		prev_button_1_state = button_1_state;
+		high = analogRead(LIGHT_PIN);
+		Serial.print("high: ");
+		Serial.println(high);
+	}
+
+	if (prev_button_2_state != button_2_state) {
+		prev_button_2_state = button_2_state;
+		low = analogRead(LIGHT_PIN);
+		Serial.print("low: ");
+		Serial.println(low);
+	}
+
+	analogWrite(LED_PIN, map(analogRead(LIGHT_PIN)));
+	delay(30); 
 }
