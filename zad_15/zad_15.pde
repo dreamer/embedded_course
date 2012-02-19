@@ -14,7 +14,7 @@
 #define BUTTON_PIN (2)
 #define LED_PIN (9)
 #define DELAY (10) // ms
-#define DOT (200) // ms
+#define DOT (130) // ms
 #define BUFFER_SIZE (10)
 
 int button_state = LOW;
@@ -39,8 +39,9 @@ void signal_off()
 void save(char c)
 {
 	assert('.' == c || '-' == c);
-	buffer_end = min(buffer_end+1, BUFFER_SIZE-2);
+
 	buffer[buffer_end] = c;
+	buffer_end = min(buffer_end+1, BUFFER_SIZE-2);
 }
 
 bool has_letter()
@@ -51,6 +52,7 @@ bool has_letter()
 char get_letter()
 {
 	char c = decode(buffer);
+	buffer_end = 0;
 	memset(buffer, '\0', BUFFER_SIZE);
 	return c ? c : '?';
 }
@@ -69,8 +71,6 @@ void loop()
 	duration += DELAY;
 
 	if (prev_button_state != button_state) {
-
-		//Serial.println(duration);
 
 		if (button_state == HIGH)
 			signal_on();
@@ -97,7 +97,7 @@ void loop()
 
 		if (duration > 2 * DOT) {
 			if (has_letter()) {
-				Serial.println(get_letter());
+				Serial.print(get_letter());
 
 				// printing any char implies, that we will want
 				// new space after whole word
@@ -107,7 +107,7 @@ void loop()
 
 		if (duration > 6 * DOT) {
 			if (!printed_space) {
-				Serial.println(' ');
+				Serial.print('_');
 				printed_space = true;
 			}
 		}
