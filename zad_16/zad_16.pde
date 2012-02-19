@@ -13,7 +13,7 @@
 
 #define NOTE_C4 (262)
 #define LED_PIN (9)
-#define DOT (200) // ms
+#define DOT (150) // ms
 #define BUFFER_SIZE (1024)
 
 enum State { READ, BEEP };
@@ -73,11 +73,14 @@ void loop()
 	switch (state)
 	{
 		case READ:
+			Serial.println(">> ");
 			Serial.readBytesUntil('\n', buffer, BUFFER_SIZE);
 			state = BEEP;
 			break;
 
 		case BEEP:
+			Serial.print("<< ");
+			Serial.println(buffer);
 			beep();
 			state = READ;
 			break;
