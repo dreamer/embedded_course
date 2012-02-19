@@ -1,44 +1,49 @@
+// vim: noai:ts=4:sw=4
+
+/*
+FIXME copy GND to all exercises!
 - 5V idzie do -
 - GND idzie do +
 - GND do F21
-- 11 do F23
-- 10 do F24
-- 9 do F26
 
+- 9  <-> F26 (led)
+- 11 <-> F23 (led)
+- 10 <-> F24 (led)
+*/
 
-
-
-byte r_pin = 9;
-byte g_pin = 10;
-byte b_pin = 11;
+#define R_LED_PIN (9)
+#define G_LED_PIN (10)
+#define B_LED_PIN (11)
+#define DELAY (30) // ms
 
 int r_color = 255;
-int g_color = 0;
+int g_color = 255;
 int b_color = 255;
 
 float brightness = 0.0;
-float iFadeAmount = 0.01;
-float fadeAmount = 0.01;
+float fade = 0.01;
 
 void setup()
 {
-    Serial.begin(9600);
+	Serial.begin(9600);
 }
 
 void loop()  {
-    analogWrite(r_pin, r_color*brightness);
-    analogWrite(g_pin, g_color*brightness);
-    analogWrite(b_pin, b_color*brightness); 
 
-    brightness = brightness + fadeAmount;
-    Serial.println(brightness);
-    if (brightness < fabs(fadeAmount) || brightness > 1.0-fabs(fadeAmount)) {
-      fadeAmount = -fadeAmount ;
-    }     
-    if(brightness < fabs(fadeAmount)){
-        r_color = random(0,255);
-        g_color = random(0, 255);
-        b_color = random(0, 255);
-    }  
-    delay(30);                            
+	analogWrite(R_LED_PIN, r_color * brightness);
+	analogWrite(G_LED_PIN, g_color * brightness);
+	analogWrite(B_LED_PIN, b_color * brightness);
+
+	if (brightness < fabs(fade)) {
+		r_color = random(0, 255);
+		g_color = random(0, 255);
+		b_color = random(0, 255);
+	}
+
+	brightness += fade;
+
+	if (brightness < fabs(fade) || brightness > 1.0 - fabs(fade))
+		fade = -fade;
+
+	delay(DELAY);
 }
