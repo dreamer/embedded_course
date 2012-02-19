@@ -1,6 +1,6 @@
 
 // nuty kolędy: http://gajdaw.pl/koledy/dzisiaj-w-betlejem.html
-
+// 8 do 41J
 #define NOTE_B0  31
 #define NOTE_C1  33
 #define NOTE_CS1 35
@@ -23,7 +23,7 @@
 #define NOTE_FS2 93
 #define NOTE_G2  98
 #define NOTE_GS2 104
-#define NOTE_A2  110
+#define NOTE_A2  109
 #define NOTE_AS2 117
 #define NOTE_B2  123
 #define NOTE_C3  131
@@ -141,8 +141,10 @@ int noteDurations[] = {4, 8, 8, 8, 8,
                        8, 8, 8, 8, 8, 8,
                        8, 8, 4, 4, 
                        8, 8, 4, 4};
+int status = 1;
 
 void loop() {
+if(status){
   digitalWrite(13, HIGH); 
   digitalWrite(12, HIGH);
   digitalWrite(11, HIGH);
@@ -152,17 +154,20 @@ void loop() {
   digitalWrite(7, HIGH);
   digitalWrite(6, HIGH);
   digitalWrite(5, HIGH);
-  delay(1000);            
-  digitalWrite(13, LOW);  
-  digitalWrite(12, LOW);  
-  digitalWrite(11, LOW);  
-  digitalWrite(10, LOW);  
-  digitalWrite(9, LOW);  
-  digitalWrite(4, LOW);  
-  digitalWrite(7, LOW);  
-  digitalWrite(6, LOW);  
-  digitalWrite(5, LOW);
-  delay(1000);       
+  status=0; 
+} else {
+  digitalWrite(13, LOW); 
+  digitalWrite(12, LOW);
+  digitalWrite(11, LOW);
+  digitalWrite(10, LOW);
+  digitalWrite(9, LOW);
+  digitalWrite(4, LOW);
+  digitalWrite(7, LOW);
+  digitalWrite(6, LOW);
+  digitalWrite(5, LOW);  
+  status=1;
+}
+      
   for (int thisNote = 0; thisNote < 74; thisNote++) {
 
     int noteDuration = 1000/noteDurations[thisNote];
