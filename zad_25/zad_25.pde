@@ -22,7 +22,7 @@
 #define IS_EMPTY(str) (!str[0])
 #define REQUEST_STARTS_WITH(str) (0 == strncmp(buffer, str, strlen(str)))
 
-enum Resource { INDEX, PLAY_PAUSE, NOT_FOUND, NONE };
+enum Resource { INDEX, PLAY_PAUSE, NOT_FOUND, POST, NONE };
 
 //byte mac[] = { 0x48, 0x5D, 0x60, 0xB5, 0x73, 0xC5 }; // dreamer_
 byte mac[] = { 0x48, 0x5D, 0x60, 0xB5, 0x73, 0xAA }; // random
@@ -33,6 +33,8 @@ byte mac[] = { 0x48, 0x5D, 0x60, 0xB5, 0x73, 0xAA }; // random
 char buffer[BUFFER_SIZE] = { '\0' };
 bool is_playing = false;
 int resource = NONE;
+int empty_lines = 0;
+bool save_post_data = false;
 
 EthernetServer server(80);
 
@@ -50,6 +52,7 @@ int get_resource()
 {
 	if (REQUEST_STARTS_WITH("GET / ")) return INDEX;
 	if (REQUEST_STARTS_WITH("GET /pp/ ")) return PLAY_PAUSE;
+	if (REQUEST_STARTS_WITH("POST /upload/ ")) return POST;
 	return NOT_FOUND;
 }
 
@@ -71,12 +74,31 @@ void send_index(EthernetClient &client)
 			"<body>\n"
 			"<form>\n"
 			"<input type=file id=upload name=files>\n"
-			"<div id=message></div>\n"
-			"<input type=submit>\n"
+			//"<input type=submit>\n"
 			"</form>\n"
-			"<a href=/pp/>");
+			"<a href=/pp/>"
+			);
 	client.print(is_playing ? "Pause" : "Play");
 	client.println("</a>");
+	client.println(
+			"<p id=log></p>\n"
+			"<script>\n"
+			"function uploadFiles(url, files) {\n"
+			"  var formData = new FormData();\n"
+			"  for (var i = 0, file; file = files[i]; ++i) {\n"
+			"    formData.append(file.name, file);\n"
+			"  }\n"
+			"  var xhr = new XMLHttpRequest();\n"
+			"  xhr.open('POST', url, true);\n"
+			"  xhr.onload = function(e){};\n"
+			"  xhr.send(formData);\n"
+			"  document.getElementById('log').innerHTML += 'uploading file...<br>';\n"
+			"}\n"
+			"document.querySelector('input[type=\"file\"]').onchange = function(e) {\n"
+			"  uploadFiles('/upload/', this.files);\n"
+			"};\n"
+			"</script>\n"
+			);
 }
 
 void setup()
@@ -109,20 +131,44 @@ void loop()
 				client.readBytesUntil('\n', buffer, BUFFER_SIZE-1);
 				println(buffer);
 
-				if (resource == NONE)
+				if (save_post_data) {
+					if (strcmp(buffer, "\r") == 0) {
+						save_post_data = false;
+						// TODO: act with data!
+						break;
+					}
+					Serial.print('[');
+					Serial.print(buffer);
+					Serial.println(']');
+				}
+
+				if (resource == NONE) {
 					resource = get_resource();
+					empty_lines = 0;
+					save_post_data = false;
+				}
 
-				if (strcmp(buffer, "\r") == 0) {
-					println(":: sending response\n");
+				if (resource == POST) {
+					if (strcmp(buffer, "\r") == 0)
+						empty_lines++;
+					if (empty_lines == 2)
+						save_post_data = true;
+				} else {
+					if (strcmp(buffer, "\r") == 0) {
+						println(":: sending response\n");
 
-					switch (resource) {
-						case PLAY_PAUSE: is_playing = !is_playing;
-						case INDEX:	send_index(client); break;
-						case NOT_FOUND:
-						default:
-							client.println("HTTP/1.1 404 Not Found");
-					};
-					break;
+						switch (resource) {
+							case PLAY_PAUSE: is_playing = !is_playing;
+							case INDEX:	send_index(client); break;
+							case POST:
+										client.println("HTTP/1.1 200 OK");
+										break;
+							case NOT_FOUND:
+							default:
+										client.println("HTTP/1.1 404 Not Found");
+						};
+						break;
+					}
 				}
 			}
 		}
