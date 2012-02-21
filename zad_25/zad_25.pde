@@ -10,7 +10,6 @@
 
 #include <SPI.h>
 #include <Ethernet.h>
-//#include <EthernetUdp.h>
 
 #define VERBOSE
 
