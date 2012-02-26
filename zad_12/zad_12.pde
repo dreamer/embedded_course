@@ -37,8 +37,8 @@ void setup()
 {
 	Serial.begin(9600);
 	pinMode(LED_PIN, OUTPUT );
-	pinMode(BUTTON_1_PIN, INPUT);  
-	pinMode(BUTTON_2_PIN, INPUT);  
+	pinMode(BUTTON_1_PIN, INPUT);
+	pinMode(BUTTON_2_PIN, INPUT);
 }
 
 void loop()
@@ -61,5 +61,5 @@ void loop()
 	}
 
 	analogWrite(LED_PIN, map(analogRead(LIGHT_PIN)));
-	delay(30); 
+	delay(30);
 }
